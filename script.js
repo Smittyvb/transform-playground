@@ -12,19 +12,19 @@ function drawGrid(ctx) {
     const coord = (lineGap * i) - Math.max(ctx.canvas.width, ctx.canvas.height);
     if (coord > (ctx.canvas.width * 2) && coord > (ctx.canvas.height * 2)) break;
     const bigger = i % 2 === 0;
-    const thickness = bigger ? 3.5 : 2;
-    ctx.fillRect(coord - (ctx.canvas.height / 2), -ctx.canvas.height, thickness, ctx.canvas.height * 8); // vertical line
-    ctx.fillRect(-ctx.canvas.width, coord - (ctx.canvas.width / 2),   ctx.canvas.width * 8, thickness); // horizontal line
+    const thickness = bigger ? 4.4 : 2;
+    ctx.fillRect(coord + ctx.canvas.height, -ctx.canvas.height, thickness, ctx.canvas.height * 8); // vertical line
+    ctx.fillRect(-ctx.canvas.width, coord,  ctx.canvas.width * 8, thickness); // horizontal line
   }
 
   // draw square in center
-  // ctx.fillStyle = "blue";
-  // ctx.fillRect(
-  //   (ctx.canvas.width / 2) - (CENTER_SQ_DIM / 2),
-  //   (ctx.canvas.height / 2) - (CENTER_SQ_DIM / 2),
-  //   CENTER_SQ_DIM,
-  //   CENTER_SQ_DIM
-  // );
+  ctx.fillStyle = "blue";
+  ctx.fillRect(
+    (ctx.canvas.width / 2) - (CENTER_SQ_DIM / 2),
+    (ctx.canvas.height / 2) - (CENTER_SQ_DIM / 2),
+    CENTER_SQ_DIM,
+    CENTER_SQ_DIM
+  );
 }
 
 function docNum(id) {
@@ -34,12 +34,37 @@ function docNum(id) {
   return num;
 }
 
+if (location.hash[0] === "#") {
+  const parts = location.hash.slice(1)
+    .split(",")
+    .map(part => parseFloat(part, 10))
+    .filter(part => !Number.isNaN(part));
+  if (parts.length === 4) {
+    document.getElementById("m11").value = parts[0];
+    document.getElementById("m12").value = parts[1];
+    document.getElementById("m21").value = parts[2];
+    document.getElementById("m22").value = parts[3];
+  }
+}
+function getMatrix() {
+  return [
+    docNum("m11"), docNum("m12"), docNum("m21"), docNum("m22")
+  ];
+}
+
+setInterval(() => {
+  const matrix = getMatrix();
+  const newHash = matrix.map(num => num.toFixed(3)).join(",");
+  if (location.hash !== newHash) location.hash = newHash;
+}, 1500);
+
 let resizePending = true;
 function eachFrame() {
   requestAnimationFrame(eachFrame);
   gridtopCtx.clearRect(0, 0, gridtopCan.width, gridtopCan.height);
   gridtopCtx.save();
-  gridtopCtx.transform(docNum("m11"), docNum("m12"), docNum("m21"), docNum("m22"), 0, 0);
+  const matrix = getMatrix();
+  gridtopCtx.transform.apply(gridtopCtx, matrix.concat([0, 0]));
   drawGrid(gridtopCtx);
   gridtopCtx.restore();
   if (resizePending) {
@@ -57,4 +82,4 @@ requestAnimationFrame(eachFrame);
 
 window.addEventListener("resize", () => {
   resizePending = true;
-})
+});
