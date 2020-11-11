@@ -4,25 +4,24 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>Hello!</title>
-    
-    <!-- import the webpage's stylesheet -->
+    <title>Linear transform playground</title>
     <link rel="stylesheet" href="/style.css">
-    
-    <!-- import the webpage's javascript file -->
     <script src="/script.js" defer></script>
   </head>  
   <body>
-    <h1>Hi there!</h1>
-    
-    <p>
-      I'm your cool new webpage. Made with <a href="https://glitch.com">Glitch</a>!
-    </p>
-
-    <!-- include the Glitch button to show what the webpage is about and
-          to make it easier for folks to view source and remix -->
-    <div class="glitchButton" style="position:fixed;top:20px;right:20px;"></div>
-    <script src="https://button.glitch.me/button.js" defer></script>
+    <div id="controls">
+      <h1>
+        Linear transformations playground
+      </h1>
+      <div id="mVals">
+        <input type="text" id="m11" value="1">
+        <input type="text" id="m21" value="0">
+        <br>
+        <input type="text" id="m12" value="0">
+        <input type="text" id="m22" value="1">
+      </div>
+    </div>
+    <canvas class="scrCan" id="gridtop"></canvas>
+    <canvas class="scrCan" id="gridbg"></canvas>
   </body>
 </html>

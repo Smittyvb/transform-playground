@@ -1,11 +1,32 @@
-/* CSS files add styling rules to your content */
-
 body {
-  font-family: helvetica, arial, sans-serif;
-  margin: 2em;
+  margin: 0;
+  font-family: system-ui, sans-serif;
 }
 
-h1 {
-  font-style: italic;
-  color: #373fff;
+.scrCan {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#gridbg {
+  opacity: 0.15;
+}
+
+#controls {
+  background: white;
+  position: absolute;
+  min-width: 50vw;
+  z-index: 1;
+  /* https://stackoverflow.com/questions/8508275/how-to-center-a-position-absolute-element */
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+#mVals > input {
+  width: 1rem;
+  margin-bottom: 0.3rem;
+  margin-right: 0.15rem;
+  text-align: center;
 }
