@@ -64,7 +64,7 @@ function eachFrame() {
   gridtopCtx.clearRect(0, 0, gridtopCan.width, gridtopCan.height);
   gridtopCtx.save();
   const matrix = getMatrix();
-  gridtopCtx.transform.apply(gridtopCtx, matrix.concat([0, 0]));
+  gridtopCtx.transform.apply(gridtopCtx, matrix.concat([ gridtopCan.height / 2, gridtopCan.width / 2 ]));
   drawGrid(gridtopCtx);
   gridtopCtx.restore();
   if (resizePending) {
