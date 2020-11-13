@@ -50,9 +50,57 @@ if (location.hash[0] === "#") {
     document.getElementById("m22").value = parts[3];
   }
 }
-function getMatrix() {
+
+function interp(from, to, pct) {
+  let gap = to - from;
+  let interpAmount = gap * pct;
+  return from + interpAmount;
+}
+
+function transitionEase(x) {
+  const ALPHA = 2;
+  return Math.pow(x, ALPHA) / (Math.pow(x, ALPHA) + Math.pow(1 - x, ALPHA))
+}
+
+let pendingTransition = null;
+function getMatrix(actual) {
+  if (!actual && pendingTransition) {
+    let now = Date.now();
+    let end = pendingTransition.start + pendingTransition.duration;
+    if (now < end) {
+      let progress = 1 - ((end - now) / pendingTransition.duration);
+      progress = transitionEase(progress);
+      const actual = getMatrix(true);
+      return actual.map((item, i) => interp(item, pendingTransition.to[i], progress));
+    } else {
+      console.log("t end");
+      document.getElementById("m11").value = pendingTransition.to[0];
+      document.getElementById("m12").value = pendingTransition.to[1];
+      document.getElementById("m21").value = pendingTransition.to[2];
+      document.getElementById("m22").value = pendingTransition.to[3];
+      pendingTransition = null;
+      return getMatrix(actual);
+    }
+  }
   return [
     docNum("m11"), docNum("m12"), docNum("m21"), docNum("m22")
+  ];
+}
+
+// matrix multiply AB
+function mm(a, b) {
+  return [
+    a[0]*b[0] + a[1]*b[2],
+    a[0]*b[1] + a[2]*b[3],
+    a[2]*b[1] + a[3]*b[2],
+    a[2]*b[1] + a[3]*b[3],
+  ];
+}
+
+// matrix-vector product, 2x2 matrix by a 2-vector
+function mv(m, v) {
+  return [
+    
   ];
 }
 
@@ -62,6 +110,36 @@ setInterval(() => {
   if (location.hash !== newHash) location.hash = newHash;
 }, 1500);
 
+let controls = document.getElementById("controls");
+function handleMouseEvent(e) {
+  if (controls.contains(e.target)) return;
+  if (e.buttons === 1) {
+    let newX = (e.pageX - window.innerWidth / 2) / LINE_GAP;
+    let newY = (e.pageY - window.innerHeight / 2) / LINE_GAP;
+    document.getElementById("m11").value = newX;
+    document.getElementById("m12").value = newY;
+  } else if (e.buttons === 2) {
+    let newX = (e.pageX - window.innerWidth / 2) / LINE_GAP;
+    let newY = (e.pageY - window.innerHeight / 2) / LINE_GAP;
+    document.getElementById("m21").value = newX;
+    document.getElementById("m22").value = newY;
+  }
+}
+
+window.addEventListener("mousedown", e => {
+  e.preventDefault();
+  handleMouseEvent(e);
+});
+
+window.addEventListener("mousemove", e => {
+  handleMouseEvent(e);
+});
+
+window.addEventListener("contextmenu", e => {
+  if (controls.contains(e.target)) return;
+  e.preventDefault();
+});
+
 let resizePending = true;
 function eachFrame() {
   requestAnimationFrame(eachFrame);
@@ -70,6 +148,10 @@ function eachFrame() {
   const matrix = getMatrix();
   gridtopCtx.transform.apply(gridtopCtx, matrix.concat([ gridtopCan.width / 2, gridtopCan.height / 2 ]));
   drawGrid(gridtopCtx);
+  gridtopCtx.fillStyle = "blue";
+  gridtopCtx.fillRect(5, 0, LINE_GAP, 10);
+  gridtopCtx.fillStyle = "red";
+  gridtopCtx.fillRect(-2.5, -LINE_GAP + 2.5, 10, LINE_GAP);
   gridtopCtx.restore();
   if (resizePending) {
     [...document.getElementsByClassName("scrCan")].forEach(can => {
@@ -89,3 +171,16 @@ requestAnimationFrame(eachFrame);
 window.addEventListener("resize", () => {
   resizePending = true;
 });
+
+function transitionTo(matrix, time = 3000) {
+  pendingTransition = {
+    start: Date.now(),
+    duration: time,
+    to: matrix,
+  };
+}
+
+document.querySelectorAll("[data-tomatrix]").forEach(btn => btn.addEventListener("click", function clickHandler(e) {
+  e.stopPropagation();
+  transitionTo(this.dataset.tomatrix.split(",").map(val => parseInt(val, 10)));
+}));

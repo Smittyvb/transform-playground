@@ -14,7 +14,7 @@ body {
 }
 
 #controls {
-  background: white;
+  background: #fffffff2;
   position: absolute;
   min-width: 50vw;
   z-index: 1;
