@@ -3,13 +3,16 @@ const gridbgCan = document.getElementById("gridbg");
 const gridtopCtx = gridtopCan.getContext("2d");
 const gridbgCtx = gridbgCan.getContext("2d");
 
-const GRID_LINE_COUNT = 30;
 const CENTER_SQ_DIM = 10;
+const LINE_GAP = 75;
+
 function drawGrid(ctx) {
-  let lineGap = ctx.canvas.width / GRID_LINE_COUNT;
+  ctx.save();
+  let lineGap = LINE_GAP;
   ctx.fillStyle = "black";
-  for (let i = 0; ; i++) {
-    const coord = (lineGap * i) - Math.max(ctx.canvas.width, ctx.canvas.height);
+  for (let i = -30; ; i++) {
+    let coord = lineGap * i;
+    coord = Math.floor(coord / lineGap) * lineGap;
     if (coord > (ctx.canvas.width * 2) && coord > (ctx.canvas.height * 2)) break;
     const bigger = i % 2 === 0;
     const thickness = bigger ? 4.4 : 2;
@@ -19,12 +22,13 @@ function drawGrid(ctx) {
 
   // draw square in center
   ctx.fillStyle = "blue";
-  ctx.fillRect(
-    (ctx.canvas.width / 2) - (CENTER_SQ_DIM / 2),
-    (ctx.canvas.height / 2) - (CENTER_SQ_DIM / 2),
-    CENTER_SQ_DIM,
-    CENTER_SQ_DIM
-  );
+  // ctx.fillRect(
+  //   (ctx.canvas.width / 2) - (CENTER_SQ_DIM / 2),
+  //   (ctx.canvas.height / 2) - (CENTER_SQ_DIM / 2),
+  //   CENTER_SQ_DIM,
+  //   CENTER_SQ_DIM
+  // );
+  ctx.restore();
 }
 
 function docNum(id) {
@@ -64,7 +68,7 @@ function eachFrame() {
   gridtopCtx.clearRect(0, 0, gridtopCan.width, gridtopCan.height);
   gridtopCtx.save();
   const matrix = getMatrix();
-  gridtopCtx.transform.apply(gridtopCtx, matrix.concat([ gridtopCan.height / 2, gridtopCan.width / 2 ]));
+  gridtopCtx.transform.apply(gridtopCtx, matrix.concat([ gridtopCan.width / 2, gridtopCan.height / 2 ]));
   drawGrid(gridtopCtx);
   gridtopCtx.restore();
   if (resizePending) {
@@ -74,7 +78,9 @@ function eachFrame() {
     });
     gridbgCtx.fillStyle = "#e0e0e0";
     gridbgCtx.fillRect(0, 0, gridbgCan.width, gridbgCan.height);
+    gridbgCtx.translate(gridtopCan.width / 2, gridtopCan.height / 2);
     drawGrid(gridbgCtx);
+    gridbgCtx.translate(-gridtopCan.width / 2, -gridtopCan.height / 2);
   }
   resizePending = false;
 }
