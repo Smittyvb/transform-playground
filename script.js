@@ -97,13 +97,6 @@ function mm(a, b) {
   ];
 }
 
-// matrix-vector product, 2x2 matrix by a 2-vector
-function mv(m, v) {
-  return [
-    
-  ];
-}
-
 setInterval(() => {
   const matrix = getMatrix();
   const newHash = matrix.map(num => num.toFixed(3)).join(",");
@@ -121,8 +114,8 @@ function handleMouseEvent(e) {
   } else if (e.buttons === 2) {
     let newX = (e.pageX - window.innerWidth / 2) / LINE_GAP;
     let newY = (e.pageY - window.innerHeight / 2) / LINE_GAP;
-    document.getElementById("m21").value = newX;
-    document.getElementById("m22").value = newY;
+    document.getElementById("m21").value = -newX;
+    document.getElementById("m22").value = -newY;
   }
 }
 
@@ -146,7 +139,7 @@ function eachFrame() {
   gridtopCtx.clearRect(0, 0, gridtopCan.width, gridtopCan.height);
   gridtopCtx.save();
   const matrix = getMatrix();
-  gridtopCtx.transform.apply(gridtopCtx, matrix.concat([ gridtopCan.width / 2, gridtopCan.height / 2 ]));
+  gridtopCtx.transform.apply(gridtopCtx, [ matrix[0], matrix[1], matrix[2], matrix[3], gridtopCan.width / 2, gridtopCan.height / 2 ]);
   drawGrid(gridtopCtx);
   gridtopCtx.fillStyle = "blue";
   gridtopCtx.fillRect(5, 0, LINE_GAP, 10);
@@ -172,7 +165,7 @@ window.addEventListener("resize", () => {
   resizePending = true;
 });
 
-function transitionTo(matrix, time = 3000) {
+function transitionTo(matrix, time = 1000) {
   pendingTransition = {
     start: Date.now(),
     duration: time,
@@ -182,5 +175,10 @@ function transitionTo(matrix, time = 3000) {
 
 document.querySelectorAll("[data-tomatrix]").forEach(btn => btn.addEventListener("click", function clickHandler(e) {
   e.stopPropagation();
-  transitionTo(this.dataset.tomatrix.split(",").map(val => parseInt(val, 10)));
+  if (this.dataset.tomatrix === "transpose") {
+    const oldMatrix = getMatrix();
+    transitionTo([oldMatrix[0], oldMatrix[2], oldMatrix[1], oldMatrix[3]]);
+  } else {
+    transitionTo(this.dataset.tomatrix.split(",").map(val => parseInt(val, 10)));
+  }
 }));
